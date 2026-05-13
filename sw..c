@@ -11,6 +11,9 @@ typedef struct Node
     struct Node *next;
 }node;
 
+//全局自增id
+int id = 1 ;
+
 //哈希表
 #define HASH_SIZE 100
 typedef struct HashMap
@@ -18,12 +21,40 @@ typedef struct HashMap
 node *hash_map[HASH_SIZE];
 }hashmap;
 
+//初始化哈希表
 void init(hashmap *h);
+//插入
 void map_put(hashmap *h, int id);
+
+//字符集
+static const char base62_chars[] = 
+    "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+//哈希函数/id转换为短码
+char *id_to_short_code(int id);
+
+
 
 int main(int argc, char const *argv[])
 {
-    int id = 1;
 
     return 0;
+}
+
+
+
+
+char *id_to_short_code(int id)
+{
+    if (id == 0)
+        return 0;
+    char buf[21] = {0};
+    int pos = 20;
+    buf[pos] = '\0';
+    while (id > 0)
+    {
+        buf[--pos] = base62_chars[id % 62];
+        id /= 62;
+    }
+    return strdup(&buf[pos]);
 }
