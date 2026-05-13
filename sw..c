@@ -25,6 +25,8 @@ node *hash_map[HASH_SIZE];
 void init(hashmap *h);
 //插入
 void map_put(hashmap *h, int id);
+//创建节点
+node *creat_node(node *next, char *short_code , char *long_url);
 
 //字符集
 static const char base62_chars[] = 
@@ -41,9 +43,32 @@ int main(int argc, char const *argv[])
     return 0;
 }
 
+//初始化哈希表
+void init(hashmap *h)
+{
+    for (int i = 0; i < HASH_SIZE; i++)
+    {
+        h->hash_map[i] = NULL;
+    }
+}
 
+//创建节点
+node *creat_node(node *next, char *short_code , char *long_url)
+{
+    node *n = malloc(sizeof(node));
+    n->short_code = strdup(short_code);
+    n->long_url = strdup(long_url);
+    n->next = next;
+    return n;
+}
 
+//插入
+void map_put(hashmap *h, int id)
+{
+    char *short_code = id_to_short_code(id);
+}
 
+//哈希函数/id转换为短码
 char *id_to_short_code(int id)
 {
     if (id == 0)
