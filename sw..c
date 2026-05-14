@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 //结构体——哈希表节点
 typedef struct Node
 {
@@ -11,9 +12,6 @@ typedef struct Node
     struct Node *next;
 }node;
 
-//全局自增id
-int id = 1 ;
-
 //哈希表
 #define HASH_SIZE 100
 typedef struct HashMap
@@ -21,20 +19,32 @@ typedef struct HashMap
 node *hash_map[HASH_SIZE];
 }hashmap;
 
-//初始化哈希表
+//哈希函数
+int hash_function(char *short_code);
+
+//初始化哈希表函数
 void init(hashmap *h);
-//插入
-void map_put(hashmap *h, int id);
 //创建节点
-node *creat_node(node *next, char *short_code , char *long_url);
+node *create_node(char *short_code , char *long_url);
+//插入
+void map_put(hashmap *h, char *short_code , char *long_url);
+//查询
+char *map_get(hashmap *h, char *short_code);
 
 //字符集
 static const char base62_chars[] = 
     "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 //哈希函数/id转换为短码
-char *id_to_short_code(int id);
+char *id_to_short_code(long id);
 
+//全局自增id
+static long id =1;
+//定义两个哈希表：一个用于短码到长URL的映射，另一个用于长URL到短码的映射
+hashmap short_to_long;
+hashmap long_to_short;
+//初始化哈希表
+void init_hash();
 
 
 int main(int argc, char const *argv[])
@@ -52,24 +62,54 @@ void init(hashmap *h)
     }
 }
 
+//哈希函数
+int hash_function(char *short_code)
+{
+    int hash = 0;
+    for (int i = 0; short_code[i] != '\0'; i++)
+    {
+        hash = (hash * 31 + short_code[i]) % HASH_SIZE;
+    }
+    return hash;
+}
+
 //创建节点
-node *creat_node(node *next, char *short_code , char *long_url)
+node *create_node(char *short_code , char *long_url)
 {
     node *n = malloc(sizeof(node));
     n->short_code = strdup(short_code);
     n->long_url = strdup(long_url);
-    n->next = next;
+    n->next = NULL;
     return n;
 }
 
 //插入
-void map_put(hashmap *h, int id)
+void map_put(hashmap *h, char *short_code , char *long_url)
 {
-    char *short_code = id_to_short_code(id);
+    int index = hash_function(short_code);
+    node *new_node = create_node(short_code , long_url);
+    new_node->next = h->hash_map[index];
+    h->hash_map[index] = new_node;
+}
+
+//查询
+char *map_get(hashmap *h, char *short_code)
+{
+    int index = hash_function(short_code);
+    node *c = h->hash_map[index];
+    while (c != NULL)
+    {
+        if (strcmp(c->short_code, short_code) == 0)//比较短码是否相同
+        {
+            return c->long_url;
+        }
+        c = c->next;
+    }
+    return NULL;
 }
 
 //哈希函数/id转换为短码
-char *id_to_short_code(int id)
+char *id_to_short_code(long id)
 {
     if (id == 0)
         return 0;
