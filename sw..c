@@ -45,11 +45,20 @@ hashmap short_to_long;
 hashmap long_to_short;
 //初始化哈希表
 void init_hash();
+//生成短码
+char *shorten_url(char *long_url);
+//根据短码获取长URL
+char *get_long_url(char *short_code);
 
 
 int main(int argc, char const *argv[])
 {
-
+    init_hash();
+    char *long_url = "https://www.example.com/some/very/long/ur";
+    char *short_code = shorten_url(long_url);
+    printf(" %s 的短码是 %s\n", long_url, short_code);
+    char *retrieved_long_url = get_long_url(short_code);
+    printf(" %s 的长URL是 %s\n", short_code, retrieved_long_url);
     return 0;
 }
 
@@ -122,4 +131,32 @@ char *id_to_short_code(long id)
         id /= 62;
     }
     return strdup(&buf[pos]);
+}
+
+//初始化哈希表
+void init_hash()
+{
+    init(&short_to_long);
+    init(&long_to_short);
+}
+//生成短码
+char *shorten_url(char *long_url)
+{
+    //检查长URL是否已经存在
+    char *existing_short_code = map_get(&long_to_short, long_url);
+    if (existing_short_code != NULL)
+    {
+        return existing_short_code;
+    }
+    //生成新的短码
+    char *short_code = id_to_short_code(id++);
+    //存储映射关系
+    map_put(&short_to_long, short_code, long_url);
+    map_put(&long_to_short, long_url, short_code);
+    return short_code;  
+}
+//根据短码获取长URL
+char *get_long_url(char *short_code)
+{
+    return map_get(&short_to_long, short_code);
 }
