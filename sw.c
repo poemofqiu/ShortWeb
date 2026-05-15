@@ -13,7 +13,7 @@ typedef struct Node
 }node;
 
 //哈希表
-#define HASH_SIZE 100
+#define HASH_SIZE 1024
 typedef struct HashMap
 {
 node *hash_map[HASH_SIZE];
@@ -54,11 +54,20 @@ char *get_long_url(char *short_code);
 int main(int argc, char const *argv[])
 {
     init_hash();
-    char *long_url = "https://www.example.com/some/very/long/ur";
-    char *short_code = shorten_url(long_url);
-    printf(" %s 的短码是 %s\n", long_url, short_code);
-    char *retrieved_long_url = get_long_url(short_code);
-    printf(" %s 的长URL是 %s\n", short_code, retrieved_long_url);
+    //验证第1011个url的短码
+    for (int i = 0; i < 1024; i++)
+    {
+        char long_url[1024];
+        sprintf(long_url, "https://www.example.com/url%d", i);
+        char *short_code = shorten_url(long_url);
+        if (i == 1011)
+        {
+            printf(" %s 的短码是 %s\n", long_url, short_code);
+            char *retrieved_long_url = get_long_url(short_code);
+            printf(" %s 的长URL是 %s\n", short_code, retrieved_long_url);
+        }
+    }
+
     return 0;
 }
 
